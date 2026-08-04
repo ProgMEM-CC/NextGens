@@ -1,0 +1,81 @@
+# ==========================================================================
+#  AutoSell Chest & Sell Barrel configuration
+#
+#  The AutoSell Chest collects the money value of your generator drops
+#  (and the drops of generators owned by players that trust you) instead
+#  of spawning the items, so you can claim the money at any time.
+#
+#  The Sell Barrel is a limited use variant, every generator drop stored
+#  inside it consumes 1 use. Once the uses run out the barrel breaks and
+#  disappears, paying out the remaining stored money to the owner.
+#
+#  General settings and messages for this system can be found inside
+#  config.yml under the 'autosell-chest' section.
+# ==========================================================================
+
+# The item that is placed to create an AutoSell Chest
+chest-item:
+  material: CHEST
+  display-name: '&6&lAutoSell Chest'
+  custom-model-data: 0
+  flags:
+    - HIDE_ATTRIBUTES
+  lore:
+    - '&7'
+    - '&ePlace this chest to start collecting'
+    - '&eyour generator drops as money!'
+    - '&7'
+    - '&b・&fStored: &e${amount_formatted}'
+    - '&7'
+    - '&f&oRight-click it to open the menu.'
+
+# The Sell Barrel - a limited use variant of the autosell chest
+sell-barrel:
+  # List of tiers, each tier has its own amount of uses and item
+  # {uses} and {amount_formatted} placeholders are available
+  tiers:
+    tier1:
+      material: BARREL
+      display-name: '&e&lSell Barrel &7(Tier 1)'
+      uses: 100
+      custom-model-data: 0
+      flags:
+        - HIDE_ATTRIBUTES
+      lore:
+        - '&7'
+        - '&eA limited use autosell container!'
+        - '&7'
+        - '&b・&fUses: &e{uses}'
+        - '&b・&fStored: &e${amount_formatted}'
+        - '&7'
+        - '&f&oRight-click it to open the menu.'
+    tier2:
+      material: BARREL
+      display-name: '&6&lSell Barrel &7(Tier 2)'
+      uses: 250
+      custom-model-data: 0
+      flags:
+        - HIDE_ATTRIBUTES
+      lore:
+        - '&7'
+        - '&eA limited use autosell container!'
+        - '&7'
+        - '&b・&fUses: &e{uses}'
+        - '&b・&fStored: &e${amount_formatted}'
+        - '&7'
+        - '&f&oRight-click it to open the menu.'
+    tier3:
+      material: BARREL
+      display-name: '&a&lSell Barrel &7(Tier 3)'
+      uses: 500
+      custom-model-data: 0
+      flags:
+        - HIDE_ATTRIBUTES
+      lore:
+        - '&7'
+        - '&eA limited use autosell container!'
+        - '&7'
+        - '&b・&fUses: &e{uses}'
+        - '&b・&fStored: &e${amount_formatted}'
+        - '&7'
+        - '&f&oRight-click it to open the menu.'

@@ -5,6 +5,7 @@ import com.muhammaddaffa.mdlib.utils.Logger;
 import com.muhammaddaffa.nextgens.NextGens;
 import com.muhammaddaffa.nextgens.api.events.generators.GeneratorGenerateItemEvent;
 import com.muhammaddaffa.nextgens.autosell.Autosell;
+import com.muhammaddaffa.nextgens.autosell.models.AutoSellChest;
 import com.muhammaddaffa.nextgens.cache.WorldBoostCache;
 import com.muhammaddaffa.nextgens.cache.WorldBoostSettings;
 import com.muhammaddaffa.nextgens.events.Event;
@@ -210,10 +211,25 @@ public class GeneratorTask extends GensRunnable {
                     }
                     // Set the drop
                     drop = generatorEvent.getDrop();
-                    // get the drop amount
-                    for (int i = 0; i < generatorEvent.getDropAmount(); i++) {
+                    // get the amount of drop
+                    int dropAmountToDrop = generatorEvent.getDropAmount();
+                    // check if there's an autosell chest collecting the drops
+                    AutoSellChest autoSellChest = NextGens.getInstance().getAutoSellChestManager()
+                            .getApplicableChest(active.getOwner());
+                    for (int i = 0; i < dropAmountToDrop; i++) {
                         if (drop == null)
                             continue;
+
+                        // if there's an autosell chest, deposit the drop value into it
+                        if (autoSellChest != null) {
+                            Double worth = NextGens.getApi().getWorth(drop.getItem());
+                            if (worth != null && worth > 0) {
+                                NextGens.getInstance().getAutoSellChestManager().deposit(autoSellChest, worth);
+                                // spawn the random drop without dropping the item
+                                drop.spawn(block, Bukkit.getOfflinePlayer(active.getOwnerName()), false);
+                                continue;
+                            }
+                        }
 
                         // check if player has autosell
                         if (player != null && Autosell.hasAutosellGensPermission(player) &&

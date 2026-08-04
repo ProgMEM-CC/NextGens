@@ -14,7 +14,7 @@ public class Settings {
             ANTI_EXPLOSION, DISABLE_DROP_PLACE, ISLAND_PICKUP,
             UPGRADE_GUI, CLOSE_ON_PURCHASE, CLOSE_ON_NO_MONEY, DROP_ON_BREAK, BROKEN_PICKUP, REPAIR_OWNER_ONLY,
             DISABLE_CRAFTING, GENERATOR_PLACE_DISTANCE, CORRUPTION_ONLINE_ONLY,
-            FANCY_HOLOGRAM_TEXT_SHADOW, FANCY_HOLOGRAM_SEE_THROUGH;
+            FANCY_HOLOGRAM_TEXT_SHADOW, FANCY_HOLOGRAM_SEE_THROUGH, AUTOSELL_CHEST_ENABLED;
 
     // String
     public static String GENS_PICKUP_ACTION, GENS_UPGRADE_ACTION, GENS_FIX_ACTION, CORRUPT_GUI_TITLE,
@@ -24,7 +24,8 @@ public class Settings {
     public static List<String> BLACKLISTED_WORLDS, CORRUPTION_BLACKLISTED_GENERATORS, CORRUPTION_HOLOGRAM_LINES;
 
     // Integer
-    public static int CORRUPTION_PERCENTAGE, CORRUPTION_INTERVAL, CORRUPTION_NOTIFY_INTERVAL, CORRUPT_GUI_SIZE;
+    public static int CORRUPTION_PERCENTAGE, CORRUPTION_INTERVAL, CORRUPTION_NOTIFY_INTERVAL, CORRUPT_GUI_SIZE,
+            AUTOSELL_CHEST_MAX_PER_PLAYER, AUTOSELL_BARREL_MAX_PER_PLAYER;
 
     // Integer List
     public static List<Integer> CORRUPT_GUI_DISPLAY_SLOTS;
@@ -64,6 +65,7 @@ public class Settings {
         DISABLE_CRAFTING = config.getBoolean("disable-crafting.enabled");
         GENERATOR_PLACE_DISTANCE = config.getBoolean("generator-place-distance.enabled");
         CORRUPTION_ONLINE_ONLY = config.getBoolean("corruption.online-only");
+        AUTOSELL_CHEST_ENABLED = config.getBoolean("autosell-chest.enabled");
         FANCY_HOLOGRAM_TEXT_SHADOW = config.getBoolean("holograms.fancyholograms.text-shadow");
         FANCY_HOLOGRAM_SEE_THROUGH = config.getBoolean("holograms.fancyholograms.see-through");
 
@@ -84,6 +86,8 @@ public class Settings {
         CORRUPTION_PERCENTAGE = config.getInt("corruption.percentage");
         CORRUPTION_INTERVAL = config.getInt("corruption.interval");
         CORRUPTION_NOTIFY_INTERVAL = config.getInt("corruption.notify.interval");
+        AUTOSELL_CHEST_MAX_PER_PLAYER = config.getInt("autosell-chest.max-per-player");
+        AUTOSELL_BARREL_MAX_PER_PLAYER = config.getInt("autosell-chest.max-barrel-per-player");
 
         // Double
         CORRUPTION_HOLOGRAM_HEIGHT = config.getDouble("corruption.hologram.height");

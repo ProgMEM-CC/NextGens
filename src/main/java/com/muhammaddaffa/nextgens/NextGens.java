@@ -10,7 +10,9 @@ import com.muhammaddaffa.mdlib.utils.Config;
 import com.muhammaddaffa.mdlib.utils.Executor;
 import com.muhammaddaffa.mdlib.utils.Logger;
 import com.muhammaddaffa.nextgens.api.GeneratorAPI;
+import com.muhammaddaffa.nextgens.autosell.AutoSellChestManager;
 import com.muhammaddaffa.nextgens.autosell.AutosellManager;
+import com.muhammaddaffa.nextgens.autosell.listeners.AutoSellChestListener;
 import com.muhammaddaffa.nextgens.commands.*;
 import com.muhammaddaffa.nextgens.database.ChunkCoord;
 import com.muhammaddaffa.nextgens.database.DatabaseManager;
@@ -23,7 +25,7 @@ import com.muhammaddaffa.nextgens.generators.runnables.GeneratorTask;
 import com.muhammaddaffa.nextgens.generators.runnables.NotifyTask;
 import com.muhammaddaffa.nextgens.hologram.HologramManager;
 import com.muhammaddaffa.nextgens.hooks.bento.BentoListener;
-import com.muhammaddaffa.nextgens.hooks.fabledsb.FabledSbListener;
+// TEMP-REMOVED import com.muhammaddaffa.nextgens.hooks.fabledsb.FabledSbListener;
 import com.muhammaddaffa.nextgens.hooks.papi.GensExpansion;
 import com.muhammaddaffa.nextgens.hooks.ssb2.SSB2Listener;
 import com.muhammaddaffa.nextgens.sell.listeners.HandSellListener;
@@ -78,6 +80,10 @@ public final class NextGens extends JavaPlugin {
     public static NamespacedKey sellwand_uses;
     public static NamespacedKey sellwand_total_sold;
     public static NamespacedKey sellwand_total_items;
+    public static NamespacedKey autosell_id;
+    public static NamespacedKey autosell_amount;
+    public static NamespacedKey autosell_tier;
+    public static NamespacedKey autosell_uses;
 
     // End of NamespacedKey Section
     // ------------------------------
@@ -92,6 +98,7 @@ public final class NextGens extends JavaPlugin {
     private final RefundManager refundManager = new RefundManager(generatorManager);
     private final SellwandManager sellwandManager = new SellwandManager();
     private final AutosellManager autosellManager = new AutosellManager(userManager);
+    private final AutoSellChestManager autoSellChestManager = new AutoSellChestManager(dbm);
     private final SellMultiplierRegistry sellMultiplierRegistry = new SellMultiplierRegistry();
     private final HologramManager hologramManager = new HologramManager();
 
@@ -100,7 +107,7 @@ public final class NextGens extends JavaPlugin {
 
     public static Config DEFAULT_CONFIG, GENERATORS_CONFIG, SHOP_CONFIG, UPGRADE_GUI_CONFIG,
             CORRUPT_GUI_CONFIG, EVENTS_CONFIG, DATA_CONFIG, WORTH_CONFIG, SETTINGS_GUI_CONFIG,
-            VIEW_GUI_CONFIG, UPGRADE_GENS_GUI_CONFIG, WEBHOOK_CONFIG;
+            VIEW_GUI_CONFIG, UPGRADE_GENS_GUI_CONFIG, WEBHOOK_CONFIG, AUTOSELL_CONFIG, AUTOSELL_GUI_CONFIG;
 
     public static boolean STOPPING = false;
 
@@ -142,6 +149,7 @@ public final class NextGens extends JavaPlugin {
         this.dbm.connect();
         this.dbm.createGeneratorTable();
         this.dbm.createUserTable();
+        this.dbm.createAutoSellTable();
 
         // register commands & listeners
         commands();
@@ -160,6 +168,8 @@ public final class NextGens extends JavaPlugin {
             this.generatorManager.loadChunkCoords();
             // load users
             this.userRepository.loadUsers();
+            // load the autosell chests
+            this.autoSellChestManager.load();
 
             // load the refund
             this.refundManager.load();
@@ -229,6 +239,10 @@ public final class NextGens extends JavaPlugin {
         sellwand_uses = new NamespacedKey(this, "nextgens_sellwand_uses");
         sellwand_total_sold = new NamespacedKey(this, "nextgens_sellwand_total_sold");
         sellwand_total_items = new NamespacedKey(this, "nextgens_sellwand_total_items");
+        autosell_id = new NamespacedKey(this, "nextgens_autosell_id");
+        autosell_amount = new NamespacedKey(this, "nextgens_autosell_amount");
+        autosell_tier = new NamespacedKey(this, "nextgens_autosell_tier");
+        autosell_uses = new NamespacedKey(this, "nextgens_autosell_uses");
     }
 
     private void tasks() {
@@ -283,7 +297,7 @@ public final class NextGens extends JavaPlugin {
         }
         if (pm.getPlugin("FabledSkyblock") != null) {
             Logger.info("Found FabledSkyblock! Registering hook...");
-            pm.registerEvents(new FabledSbListener(this.generatorManager, this.refundManager), this);
+            // TEMP-REMOVED pm.registerEvents(new FabledSbListener(this.generatorManager, this.refundManager), this);
         }
         // Slimefun integration
         if (pm.isPluginEnabled("Slimfun")) {
@@ -327,6 +341,8 @@ public final class NextGens extends JavaPlugin {
         VIEW_GUI_CONFIG         = new Config("view_gui.yml", "gui", true);
         UPGRADE_GENS_GUI_CONFIG = new Config("upgrade_gens_gui.yml", "gui", true);
         WEBHOOK_CONFIG          = new Config("webhook.yml", null, true);
+        AUTOSELL_CONFIG         = new Config("autosell.yml", null, true);
+        AUTOSELL_GUI_CONFIG     = new Config("autosell_gui.yml", "gui", true);
     }
 
     private void listeners() {
@@ -340,6 +356,8 @@ public final class NextGens extends JavaPlugin {
         pm.registerEvents(new GeneratorDupeFixListener(), this);
         // first join
         pm.registerEvents(new PlayerJoinListener(this.generatorManager), this);
+        // autosell chest
+        pm.registerEvents(new AutoSellChestListener(this.autoSellChestManager), this);
         // sellwand
         pm.registerEvents(new SellwandListener(this.sellwandManager), this);
         // handsell
@@ -352,7 +370,7 @@ public final class NextGens extends JavaPlugin {
 
     private void commands() {
         // register commands
-        MainCommand.registerCommand(this.generatorManager, this.userManager, this.eventManager, this.worthManager, this.sellwandManager);
+        MainCommand.registerCommand(this.generatorManager, this.userManager, this.eventManager, this.worthManager, this.sellwandManager, this.autoSellChestManager);
         PickupCommand.registerCommand(this.generatorManager);
         PlayerSettingsCommand.registerCommand(this.userManager);
         RepairGensCommand.registerCommand(this.generatorManager);
@@ -463,6 +481,14 @@ public final class NextGens extends JavaPlugin {
 
     public BoltAPI getBoltAPI() {
         return boltAPI;
+    }
+
+    public AutosellManager getAutosellManager() {
+        return autosellManager;
+    }
+
+    public AutoSellChestManager getAutoSellChestManager() {
+        return autoSellChestManager;
     }
 
     public HologramManager getHologramManager() {

@@ -50,6 +50,11 @@ public class SellwandListener implements Listener {
             return;
         }
 
+        // skip the custom autosell chest & sell barrel blocks
+        if (NextGens.getInstance().getAutoSellChestManager().getByBlock(block) != null) {
+            return;
+        }
+
         event.setCancelled(true);
 
         // Check if player is in the same chunk

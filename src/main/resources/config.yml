@@ -222,6 +222,20 @@ player-multiplier-limit:
 autosell:
   inventory-interval: 20
 
+# Configuration for the AutoSell Chest and Sell Barrel system
+# The autosell chest collects the money value of your generator drops
+# (and the drops of generators owned by players that trust you) instead of
+# spawning the items. The item can be configured inside 'autosell.yml'
+autosell-chest:
+  # Should the autosell chest system be enabled?
+  enabled: true
+  # Maximum AutoSell Chest a player can place (0 = unlimited)
+  max-per-player: 1
+  # Maximum Sell Barrel a player can place (0 = unlimited)
+  max-barrel-per-player: 1
+  # Should claiming the money with a sellwand in hand consume one sellwand use?
+  consume-sellwand-uses: true
+
 # Configuration options for sellwand
 sellwand:
   hooks:
@@ -434,6 +448,26 @@ messages:
   self-add: '&6[NextGens] &cYou cannot add yourself!'
   sellwand-same-chunk: '&6[NextGens] &cYou can only use sellwand on a block that is in the same chunk as you.'
   upgrade-total-spent: '&6[NextGens] &7You have spent &2&l$&a{amount_short} &7upgrading &a{successful_upgrade} &7generators to {generator}'
+  autosell-place: '&6[NextGens] &aYou have placed an AutoSell Chest!'
+  autosell-pickup: '&6[NextGens] &aYou have picked up the AutoSell Chest!'
+  autosell-claim: '&6[NextGens] &aYou have claimed &e${amount_formatted} &7(&e{multiplier}x&7) &afrom the AutoSell Chest!'
+  autosell-no-money: '&6[NextGens] &cThere is no money stored inside the AutoSell Chest!'
+  autosell-no-access: '&6[NextGens] &cYou do not have access to this AutoSell Chest!'
+  autosell-cant-break: '&6[NextGens] &cYou cannot break the AutoSell Chest! &ePlease pick it up via the GUI.'
+  autosell-max: '&6[NextGens] &cYou have reached the maximum amount of AutoSell Chests!'
+  autosell-adjacent: '&6[NextGens] &cYou cannot place an AutoSell Chest next to another chest!'
+  autosell-invalid-world: '&6[NextGens] &cYou cannot place the AutoSell Chest in this world!'
+  autosell-give: '&6[NextGens] &aYou have given &e{amount}x AutoSell Chest &ato &e{player}'
+  autosell-receive: '&6[NextGens] &aYou have received &e{amount}x AutoSell Chest!'
+  sellbarrel-place: '&6[NextGens] &aYou have placed a Sell Barrel!'
+  sellbarrel-pickup: '&6[NextGens] &aYou have picked up the Sell Barrel!'
+  sellbarrel-claim: '&6[NextGens] &aYou have claimed &e${amount_formatted} &7(&e{multiplier}x&7) &afrom the Sell Barrel!'
+  sellbarrel-no-money: '&6[NextGens] &cThere is no money stored inside the Sell Barrel!'
+  sellbarrel-max: '&6[NextGens] &cYou have reached the maximum amount of Sell Barrels!'
+  sellbarrel-broke: '&6[NextGens] &cYour Sell Barrel has broken and disappeared! &aYou received ${amount_formatted} &afrom the stored money.'
+  sellbarrel-give: '&6[NextGens] &aYou have given &e{amount}x Sell Barrel &7({tier}) &ato &e{player}'
+  sellbarrel-receive: '&6[NextGens] &aYou have received &e{amount}x Sell Barrel &7({tier})!'
+  sellbarrel-invalid-tier: '&6[NextGens] &cThere is no sell barrel tier with that id!'
   member-list:
     - '&6[NextGens] &eThese players have access to your generators: &7{members}'
     - '&6[NextGens] &eAlso, you have access to &7{member_with} &egenerators.'
@@ -476,4 +510,6 @@ messages:
     - '&6/gens trust add <player> &7- trust a player to access your gens'
     - '&6/gens trust remove <player> &7- untrust player from accessing your gens'
     - '&6/gens trust list &7- show the players that you trust'
+    - '&6/gens autosellchest <player> [amount] &7- give player an AutoSell Chest'
+    - '&6/gens sellbarrel <player> <tier> [amount] &7- give player a Sell Barrel'
     - '&6/gens reload &7- reload the configuration'

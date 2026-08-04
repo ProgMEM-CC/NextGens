@@ -4,6 +4,7 @@ import com.muhammaddaffa.mdlib.commands.commands.RoutedCommand;
 import com.muhammaddaffa.mdlib.utils.Executor;
 import com.muhammaddaffa.mdlib.utils.Placeholder;
 import com.muhammaddaffa.nextgens.NextGens;
+import com.muhammaddaffa.nextgens.autosell.AutoSellChestManager;
 import com.muhammaddaffa.nextgens.commands.subcommands.*;
 import com.muhammaddaffa.nextgens.events.managers.EventManager;
 import com.muhammaddaffa.nextgens.generators.managers.GeneratorManager;
@@ -20,7 +21,7 @@ import org.bukkit.entity.Player;
 public class MainCommand extends RoutedCommand {
 
     public static void registerCommand(GeneratorManager generatorManager, UserManager userManager, EventManager eventManager,
-                                WorthManager worthManager, SellwandManager sellwandManager) {
+                                WorthManager worthManager, SellwandManager sellwandManager, AutoSellChestManager autoSellChestManager) {
 
         String command = NextGens.DEFAULT_CONFIG.getString("commands.nextgens.command");
         new MainCommand(
@@ -29,7 +30,8 @@ public class MainCommand extends RoutedCommand {
                 userManager,
                 eventManager,
                 worthManager,
-                sellwandManager
+                sellwandManager,
+                autoSellChestManager
         );
     }
 
@@ -39,7 +41,8 @@ public class MainCommand extends RoutedCommand {
                        UserManager userManager,
                        EventManager eventManager,
                        WorthManager worthManager,
-                       SellwandManager sellwandManager) {
+                       SellwandManager sellwandManager,
+                       AutoSellChestManager autoSellChestManager) {
         super(command, null);
 
         FileConfiguration config = NextGens.DEFAULT_CONFIG.getConfig();
@@ -73,6 +76,9 @@ public class MainCommand extends RoutedCommand {
         RemoveGeneratorsCommand.handle(sub("removegenerators"), generatorManager);
 
         TrustCommand.handle(sub("trust"), userManager);
+
+        AutoSellChestCommand.handle(sub("autosellchest"), autoSellChestManager);
+        SellBarrelCommand.handle(sub("sellbarrel"), autoSellChestManager);
 
         // Register this command
         register();

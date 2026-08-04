@@ -20,6 +20,7 @@ public class DatabaseManager {
 
     public static final String GENERATOR_TABLE = "nextgens_generator";
     public static final String USER_TABLE = "nextgens_user";
+    public static final String AUTOSELL_TABLE = "nextgens_autosell";
 
     private HikariDataSource dataSource;
     private boolean mysql;
@@ -119,6 +120,17 @@ public class DatabaseManager {
         this.executeUpdate("ALTER TABLE " + USER_TABLE + " ADD COLUMN toggle_inventory_sell BOOL NOT NULL DEFAULT 0;", ex -> {});
         this.executeUpdate("ALTER TABLE " + USER_TABLE + " ADD COLUMN toggle_gens_sell BOOL NOT NULL DEFAULT 0;", ex -> {});
         this.executeUpdate("ALTER TABLE " + USER_TABLE + " ADD COLUMN member_set TEXT", ex -> {});
+    }
+
+    public void createAutoSellTable() {
+        this.executeUpdate("CREATE TABLE IF NOT EXISTS " + AUTOSELL_TABLE + " (" +
+                "location TEXT UNIQUE, " +
+                "owner VARCHAR(255), " +
+                "type TEXT, " +
+                "amount DOUBLE, " +
+                "tier TEXT, " +
+                "uses INTEGER" +
+                ");");
     }
 
     public void deleteGenerator(ActiveGenerator active) {
