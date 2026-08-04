@@ -40,10 +40,15 @@ public class SellManager {
         User user = userManager.getUser(player);
         Double value = api.getWorth(stack);
         if (value == null) return false;
+        // Apply the player's sell multipliers (same logic as /sell, sellwand,
+        // and the autosell chest / sell barrel claims) so the player's
+        // multiplier stays in sync across all sell paths.
+        SellData sellData = SellDataCalculator.calculateSellData(player, user, null, value, stack.getAmount());
+        double payout = sellData.getTotalValue();
         // Sell the item
-        VaultEconomy.deposit(player, value);
+        VaultEconomy.deposit(player, payout);
         // Update statistics
-        user.addEarnings(value);
+        user.addEarnings(payout);
         user.addItemsSold(stack.getAmount());
         // Remove the item
         stack.setAmount(0);

@@ -13,6 +13,7 @@ import com.muhammaddaffa.nextgens.api.GeneratorAPI;
 import com.muhammaddaffa.nextgens.autosell.AutoSellChestManager;
 import com.muhammaddaffa.nextgens.autosell.AutosellManager;
 import com.muhammaddaffa.nextgens.autosell.listeners.AutoSellChestListener;
+import com.muhammaddaffa.nextgens.cache.WorldBoostCache;
 import com.muhammaddaffa.nextgens.commands.*;
 import com.muhammaddaffa.nextgens.database.ChunkCoord;
 import com.muhammaddaffa.nextgens.database.DatabaseManager;
@@ -107,7 +108,8 @@ public final class NextGens extends JavaPlugin {
 
     public static Config DEFAULT_CONFIG, GENERATORS_CONFIG, SHOP_CONFIG, UPGRADE_GUI_CONFIG,
             CORRUPT_GUI_CONFIG, EVENTS_CONFIG, DATA_CONFIG, WORTH_CONFIG, SETTINGS_GUI_CONFIG,
-            VIEW_GUI_CONFIG, UPGRADE_GENS_GUI_CONFIG, WEBHOOK_CONFIG, AUTOSELL_CONFIG, AUTOSELL_GUI_CONFIG;
+            VIEW_GUI_CONFIG, UPGRADE_GENS_GUI_CONFIG, WEBHOOK_CONFIG, AUTOSELL_CONFIG, AUTOSELL_GUI_CONFIG,
+            SELL_BARREL_GUI_CONFIG;
 
     public static boolean STOPPING = false;
 
@@ -143,6 +145,8 @@ public final class NextGens extends JavaPlugin {
 
         // initialize settings
         Settings.init();
+        // initialize the world boost cache (sell/speed/drop multipliers)
+        WorldBoostCache.init();
         this.hologramManager.load();
 
         // connect to database and create the table
@@ -261,7 +265,7 @@ public final class NextGens extends JavaPlugin {
         // papi hook
         if (pm.getPlugin("PlaceholderAPI") != null) {
             Logger.info("Found PlaceholderAPI! Registering hook...");
-            new GensExpansion(this.generatorManager, this.userManager, this.eventManager, this.sellMultiplierRegistry).register();
+            new GensExpansion(this.generatorManager, this.userManager, this.eventManager).register();
         }
         if (pm.getPlugin("SuperiorSkyblock2") != null) {
             Logger.info("Found SuperiorSkyblock2! Registering hook...");
@@ -343,6 +347,7 @@ public final class NextGens extends JavaPlugin {
         WEBHOOK_CONFIG          = new Config("webhook.yml", null, true);
         AUTOSELL_CONFIG         = new Config("autosell.yml", null, true);
         AUTOSELL_GUI_CONFIG     = new Config("autosell_gui.yml", "gui", true);
+        SELL_BARREL_GUI_CONFIG  = new Config("sell_barrel_gui.yml", "gui", true);
     }
 
     private void listeners() {

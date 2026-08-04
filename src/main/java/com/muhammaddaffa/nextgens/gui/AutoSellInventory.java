@@ -5,13 +5,14 @@ import com.muhammaddaffa.mdlib.hooks.VaultEconomy;
 import com.muhammaddaffa.mdlib.task.ExecutorManager;
 import com.muhammaddaffa.mdlib.task.handleTask.HandleTask;
 import com.muhammaddaffa.mdlib.utils.Common;
+import com.muhammaddaffa.mdlib.utils.Config;
 import com.muhammaddaffa.mdlib.utils.ItemBuilder;
 import com.muhammaddaffa.mdlib.utils.Placeholder;
 import com.muhammaddaffa.mdlib.xseries.XSound;
 import com.muhammaddaffa.nextgens.NextGens;
 import com.muhammaddaffa.nextgens.autosell.AutoSellChestManager;
 import com.muhammaddaffa.nextgens.autosell.models.AutoSellChest;
-import com.muhammaddaffa.nextgens.sell.multipliers.SellMultiplierProvider;
+import com.muhammaddaffa.nextgens.sell.SellDataCalculator;
 import com.muhammaddaffa.nextgens.sellwand.models.SellwandData;
 import com.muhammaddaffa.nextgens.users.models.User;
 import com.muhammaddaffa.nextgens.utils.Utils;
@@ -39,7 +40,7 @@ public class AutoSellInventory extends FastInv {
     private HandleTask refreshTask;
 
     public AutoSellInventory(Player player, AutoSellChest chest, AutoSellChestManager manager) {
-        super(NextGens.AUTOSELL_GUI_CONFIG.getInt("size"), Common.color(NextGens.AUTOSELL_GUI_CONFIG.getString("title")
+        super(guiConfig(chest).getInt("size"), Common.color(guiConfig(chest).getString("title")
                 .replace("{type}", chest.isBarrel() ? "Sell Barrel" : "AutoSell Chest")
                 .replace("{tier}", chest.getTier() == null ? "-" : chest.getTier())
                 .replace("{uses}", Common.digits(chest.getUsesLeft()))));
@@ -75,6 +76,14 @@ public class AutoSellInventory extends FastInv {
         this.setAllItems();
     }
 
+    /**
+     * The sell barrel has its own gui configuration (sell_barrel_gui.yml)
+     * while the autosell chest keeps using autosell_gui.yml.
+     */
+    private static Config guiConfig(AutoSellChest chest) {
+        return chest.isBarrel() ? NextGens.SELL_BARREL_GUI_CONFIG : NextGens.AUTOSELL_GUI_CONFIG;
+    }
+
     private SellwandData getSellwandInHand(Player player) {
         ItemStack hand = player.getInventory().getItemInMainHand();
         if (!NextGens.getInstance().getSellwandManager().isSellwand(hand)) {
@@ -87,7 +96,7 @@ public class AutoSellInventory extends FastInv {
     }
 
     private void setAllItems() {
-        FileConfiguration config = NextGens.AUTOSELL_GUI_CONFIG.getConfig();
+        FileConfiguration config = guiConfig(this.chest).getConfig();
         // clear the gui first
         this.clearItems();
 
@@ -226,32 +235,15 @@ public class AutoSellInventory extends FastInv {
     }
 
     private double getMultiplier() {
-        double totalMultiplier = 0;
         User user = NextGens.getInstance().getUserManager().getUser(this.player);
-        // get all multipliers
-        for (SellMultiplierProvider provider : NextGens.getInstance().getMultiplierRegistry().getMultipliers()) {
-            double multiplier = provider.getMultiplier(this.player, user, this.sellwand);
-            if (multiplier > 0) {
-                totalMultiplier += multiplier;
-            }
-        }
-        // apply multiplier limit if needed
-        FileConfiguration config = NextGens.DEFAULT_CONFIG.getConfig();
-        if (config.getBoolean("player-multiplier-limit.enabled")) {
-            double limit = config.getDouble("player-multiplier-limit.limit");
-            if (totalMultiplier > limit) {
-                totalMultiplier = limit;
-            }
-        }
-        return totalMultiplier;
+        // use the shared calculator so the displayed multiplier always matches
+        // the one used by /sell, sellwands, and the PlaceholderAPI placeholders
+        return SellDataCalculator.calculateMultiplier(this.player, user, this.sellwand);
     }
 
     private double getClaimable(double multiplier) {
-        double stored = this.chest.getStoredAmount();
-        if (multiplier < 1) {
-            return stored * (multiplier + 1);
-        }
-        return stored * multiplier;
+        // shared formula with /sell so the payout always matches the displayed amount
+        return SellDataCalculator.calculateFinalAmount(this.chest.getStoredAmount(), multiplier);
     }
 
     private void consumeSellwandUse() {

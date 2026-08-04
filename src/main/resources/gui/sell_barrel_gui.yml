@@ -1,0 +1,70 @@
+# The title and size of the gui
+# Available placeholders: {type}, {tier}, {uses}
+title: "Sell Barrel"
+size: 27
+
+# The slot of the claim button (center)
+claim-slots: [ 13 ]
+# The slot of the pickup button (left of the claim button)
+pickup-slots: [ 12 ]
+# The slot of the stored amount item (right of the claim button)
+stored-slots: [ 14 ]
+# The slots that will be filled with the filler item
+filler-slots: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 ]
+
+# The claim button, showing the amount of money that can be claimed
+# (after multipliers) together with the active multiplier and the
+# remaining uses of the barrel.
+# Available placeholders: {claimable}, {claimable_raw}, {stored}, {stored_raw}, {multiplier}, {sellwand_multiplier}, {tier}, {uses}
+claim-item:
+  material: EMERALD
+  display-name: '&a&lClaim Money'
+  custom-model-data: 0
+  lore:
+    - '&7'
+    - '&fMoney available to claim: &a${claimable}'
+    - '&fYour active multiplier: &e{multiplier}x'
+    - '&fUses left: &e{uses}'
+    - '&7'
+    - '&aClick to claim your money!'
+  # Extra lines that will be appended to the lore when the player is
+  # holding a sellwand, the price output changes accordingly.
+  sellwand-lore:
+    - '&fSellwand multiplier: &e{sellwand_multiplier}x'
+
+# The pickup button, sending the sell barrel to the player inventory
+# Available placeholders: {tier}, {uses}
+pickup-item:
+  material: REDSTONE_BLOCK
+  display-name: '&c&lPickup Sell Barrel'
+  custom-model-data: 0
+  lore:
+    - '&7'
+    - '&fPickup this container and send it'
+    - '&fto your inventory.'
+    - '&fThe stored money will be kept!'
+    - '&7'
+    - '&c&lWARNING: &7The generator drops will'
+    - '&7return to normal once picked up!'
+
+# The stored amount item, showing how many uses are left before the
+# barrel breaks together with the money inside (excluding multipliers)
+# Available placeholders: {stored}, {stored_raw}, {tier}, {uses}
+stored-item:
+  material: PAPER
+  display-name: '&f&lUses Left'
+  custom-model-data: 0
+  lore:
+    - '&7'
+    - '&fUses left: &e{uses}'
+    - '&7'
+    - '&fMoney stored inside: &e${stored}'
+    - '&f&o(Excluding multipliers)'
+    - '&7'
+
+# The filler item
+filler-item:
+  material: BLACK_STAINED_GLASS_PANE
+  display-name: '&7'
+  custom-model-data: 0
+  lore: []

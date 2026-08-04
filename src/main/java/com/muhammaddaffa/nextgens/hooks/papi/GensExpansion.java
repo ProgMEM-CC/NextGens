@@ -8,8 +8,7 @@ import com.muhammaddaffa.nextgens.events.managers.EventManager;
 import com.muhammaddaffa.nextgens.generators.ActiveGenerator;
 import com.muhammaddaffa.nextgens.generators.managers.GeneratorManager;
 import com.muhammaddaffa.nextgens.generators.runnables.CorruptionTask;
-import com.muhammaddaffa.nextgens.sell.multipliers.SellMultiplierProvider;
-import com.muhammaddaffa.nextgens.sell.multipliers.SellMultiplierRegistry;
+import com.muhammaddaffa.nextgens.sell.SellDataCalculator;
 import com.muhammaddaffa.nextgens.users.models.User;
 import com.muhammaddaffa.nextgens.users.UserManager;
 import com.muhammaddaffa.nextgens.utils.Utils;
@@ -25,13 +24,11 @@ public class GensExpansion extends PlaceholderExpansion {
     private final GeneratorManager generatorManager;
     private final UserManager userManager;
     private final EventManager eventManager;
-    private final SellMultiplierRegistry registry;
 
-    public GensExpansion(GeneratorManager generatorManager, UserManager userManager, EventManager eventManager, SellMultiplierRegistry registry) {
+    public GensExpansion(GeneratorManager generatorManager, UserManager userManager, EventManager eventManager) {
         this.generatorManager = generatorManager;
         this.userManager = userManager;
         this.eventManager = eventManager;
-        this.registry = registry;
     }
 
     @Override
@@ -109,25 +106,15 @@ public class GensExpansion extends PlaceholderExpansion {
             return Common.digits(user.getEarnings());
         }
         if (params.equalsIgnoreCase("multiplier")) {
-            double multiplier = 0.0;
-            for (SellMultiplierProvider provider : registry.getMultipliers()) {
-                multiplier += provider.getMultiplier(player, user, null);
-            }
-            return Common.digits(multiplier);
+            // use the shared calculator so the placeholder matches the
+            // multiplier shown/used inside the autosell chest & sell barrel guis
+            return Common.digits(SellDataCalculator.calculateMultiplier(player, user, null));
         }
         if (params.equalsIgnoreCase("multiplier_short")) {
-            double multiplier = 0.0;
-            for (SellMultiplierProvider provider : registry.getMultipliers()) {
-                multiplier += provider.getMultiplier(player, user, null);
-            }
-            return Common.format(multiplier);
+            return Common.format(SellDataCalculator.calculateMultiplier(player, user, null));
         }
         if (params.equalsIgnoreCase("multiplier_raw")) {
-            double multiplier = 0.0;
-            for (SellMultiplierProvider provider : registry.getMultipliers()) {
-                multiplier += provider.getMultiplier(player, user, null);
-            }
-            return ((int) multiplier) + "";
+            return ((int) SellDataCalculator.calculateMultiplier(player, user, null)) + "";
         }
         if (params.equalsIgnoreCase("currentplaced")) {
             return Common.digits(this.generatorManager.getGeneratorCount(player));
