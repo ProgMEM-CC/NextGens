@@ -182,8 +182,9 @@ public class GeneratorTask extends GensRunnable {
             } else {
                 dropAmount = 1;
             }
-            // add timer
-            active.addTimer(0.25);
+            // add timer (the task runs once per second, so 1.0 keeps the
+            // generator intervals in sync with the 'interval' config value)
+            active.addTimer(1.0);
             //Logger.info("Generator " + generator.id() + " timer: " + active.getTimer() + " / " + interval);
             // check if the generator should drop
             if (active.getTimer() >= interval) {

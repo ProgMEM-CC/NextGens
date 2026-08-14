@@ -167,14 +167,22 @@ public class AutoSellInventory extends FastInv {
             VaultEconomy.deposit(this.player, payout);
             // consume a sellwand use if enabled
             this.consumeSellwandUse();
-            // save the container
-            ExecutorManager.getProvider().async(() -> this.manager.saveChest(this.chest));
+            // a sell barrel consumes exactly one use per claim, and once the
+            // uses run out the barrel breaks and disappears
+            boolean broke = this.chest.isBarrel() && this.manager.consumeBarrelUse(this.chest);
             // send the message
             NextGens.DEFAULT_CONFIG.sendMessage(this.player, this.chest.isBarrel() ? "messages.sellbarrel-claim" : "messages.autosell-claim", new Placeholder()
                     .add("{amount}", Common.digits(payout))
                     .add("{amount_formatted}", Utils.formatBalance((long) payout))
                     .add("{multiplier}", Common.digits(finalMultiplier)));
             this.player.playSound(this.player.getLocation(), XSound.ENTITY_EXPERIENCE_ORB_PICKUP.get(), 1.0f, 1.0f);
+            if (broke) {
+                // the barrel broke after its last use, close the gui
+                this.player.closeInventory();
+                return;
+            }
+            // save the container
+            ExecutorManager.getProvider().async(() -> this.manager.saveChest(this.chest));
             // refresh the gui
             this.setAllItems();
         });

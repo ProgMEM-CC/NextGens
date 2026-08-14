@@ -136,26 +136,37 @@ public class AutoSellChestManager {
     }
 
     /**
-     * Adds money into the container. For sell barrels this consumes one use,
-     * and once the uses run out the barrel breaks and disappears.
+     * Adds money into the container. Sell barrels do not consume any use on
+     * deposit, the uses are only consumed when the owner claims the money
+     * through the gui (see {@link #consumeBarrelUse(AutoSellChest)}).
      */
     public void deposit(AutoSellChest chest, double amount) {
         if (chest == null || amount <= 0) return;
-        boolean broke;
         synchronized (chest) {
             chest.addAmount(amount);
-            if (chest.isBarrel()) {
-                chest.decrementUses();
-                broke = chest.getUsesLeft() <= 0;
-            } else {
-                broke = false;
-            }
+        }
+        ExecutorManager.getProvider().async(() -> this.saveChest(chest));
+    }
+
+    /**
+     * Consumes one use of a sell barrel. Each claim consumes exactly one use,
+     * and once the uses run out the barrel breaks and disappears.
+     *
+     * @return true if the barrel broke (and was removed from the world)
+     */
+    public boolean consumeBarrelUse(AutoSellChest chest) {
+        if (chest == null || !chest.isBarrel()) return false;
+        boolean broke;
+        synchronized (chest) {
+            chest.decrementUses();
+            broke = chest.getUsesLeft() <= 0;
         }
         if (broke) {
             this.breakBarrel(chest);
-        } else {
-            ExecutorManager.getProvider().async(() -> this.saveChest(chest));
+            return true;
         }
+        ExecutorManager.getProvider().async(() -> this.saveChest(chest));
+        return false;
     }
 
     private void breakBarrel(AutoSellChest chest) {

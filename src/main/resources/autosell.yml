@@ -5,9 +5,9 @@
 #  (and the drops of generators owned by players that trust you) instead
 #  of spawning the items, so you can claim the money at any time.
 #
-#  The Sell Barrel is a limited use variant, every generator drop stored
-#  inside it consumes 1 use. Once the uses run out the barrel breaks and
-#  disappears, paying out the remaining stored money to the owner.
+#  The Sell Barrel is a limited use variant. Every time you claim the stored
+#  money from the gui it consumes 1 use. Once the uses run out the barrel
+#  breaks and disappears.
 #
 #  General settings and messages for this system can be found inside
 #  config.yml under the 'autosell-chest' section.
