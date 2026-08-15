@@ -24,7 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -65,6 +67,46 @@ public class AutoSellChestManager {
 
     public Collection<AutoSellChest> getChests() {
         return this.chestMap.values();
+    }
+
+    /**
+     * Removes every placed container whose block no longer exists in the world
+     * (e.g. it was removed by another plugin or a setblock command without
+     * going through the break/pickup flow). The stored money is refunded to
+     * the owner before the container is unregistered.
+     *
+     * @return the amount of containers that were cleaned up
+     */
+    public int cleanupGhostChests() {
+        // collect the ghosts first so we don't modify the map while iterating
+        List<AutoSellChest> ghosts = new ArrayList<>();
+        for (AutoSellChest chest : this.chestMap.values()) {
+            Location location = chest.getLocation();
+            // if the world is not loaded we cannot verify the block, leave it alone
+            if (location.getWorld() == null) continue;
+            Block block = location.getBlock();
+            boolean valid;
+            if (chest.isBarrel()) {
+                valid = block.getType() == Material.BARREL;
+            } else {
+                valid = block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST;
+            }
+            if (!valid) {
+                ghosts.add(chest);
+            }
+        }
+
+        for (AutoSellChest chest : ghosts) {
+            // refund the stored money to the owner
+            double stored = chest.getStoredAmount();
+            if (stored > 0) {
+                OfflinePlayer owner = Bukkit.getOfflinePlayer(chest.getOwner());
+                VaultEconomy.deposit(owner, stored);
+            }
+            // remove the container from the cache and the database
+            this.unregister(chest.getLocation());
+        }
+        return ghosts.size();
     }
 
     public void register(AutoSellChest chest) {

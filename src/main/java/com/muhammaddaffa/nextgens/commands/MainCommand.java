@@ -79,6 +79,7 @@ public class MainCommand extends RoutedCommand {
 
         AutoSellChestCommand.handle(sub("autosellchest"), autoSellChestManager);
         SellBarrelCommand.handle(sub("sellbarrel"), autoSellChestManager);
+        ResetAutoSellCommand.handle(sub("resetautosell"), autoSellChestManager);
 
         // Register this command
         register();

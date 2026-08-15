@@ -459,6 +459,7 @@ messages:
   autosell-invalid-world: '&6[NextGens] &cYou cannot place the AutoSell Chest in this world!'
   autosell-give: '&6[NextGens] &aYou have given &e{amount}x AutoSell Chest &ato &e{player}'
   autosell-receive: '&6[NextGens] &aYou have received &e{amount}x AutoSell Chest!'
+  autosell-reset: '&6[NextGens] &aSuccessfully reset &e{amount} &aghost AutoSell Chest(s)! Stored money has been refunded to the owners.'
   sellbarrel-place: '&6[NextGens] &aYou have placed a Sell Barrel!'
   sellbarrel-pickup: '&6[NextGens] &aYou have picked up the Sell Barrel!'
   sellbarrel-claim: '&6[NextGens] &aYou have claimed &e${amount_formatted} &7(&e{multiplier}x&7) &afrom the Sell Barrel!'
@@ -512,4 +513,5 @@ messages:
     - '&6/gens trust list &7- show the players that you trust'
     - '&6/gens autosellchest <player> [amount] &7- give player an AutoSell Chest'
     - '&6/gens sellbarrel <player> <tier> [amount] &7- give player a Sell Barrel'
+    - '&6/gens resetautosell &7- remove ghost AutoSell Chests and refund their stored money'
     - '&6/gens reload &7- reload the configuration'
