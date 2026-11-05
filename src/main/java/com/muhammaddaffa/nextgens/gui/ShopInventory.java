@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import net.milkbowl.vault.economy.EconomyResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class ShopInventory extends FastInv {
             String type = config.getString(key + ".type", "dummy");
             List<Integer> slots = config.getIntegerList(key + ".slots");
             List<String> commands = config.getStringList(key + ".commands");
-            ItemBuilder builder = ItemBuilder.fromConfig(config, key);
+            ItemBuilder builder = ItemBuilder.fromConfig(this.player, config, key);
             if (builder == null) continue;
             ItemStack stack = builder.build();
 
@@ -105,10 +106,19 @@ public class ShopInventory extends FastInv {
                         }
                         return;
                     }
-                    // reduce the amount
-                    VaultEconomy.withdraw(this.player, cost);
+                    // Grant the purchase only after the economy confirms payment.
+                    try {
+                        EconomyResponse response = VaultEconomy.withdraw(this.player, cost);
+                        if (response == null || !response.transactionSuccess()) {
+                            NextGens.DEFAULT_CONFIG.sendMessage(this.player, "messages.transaction-failed");
+                            return;
+                        }
+                    } catch (RuntimeException exception) {
+                        NextGens.DEFAULT_CONFIG.sendMessage(this.player, "messages.transaction-failed");
+                        return;
+                    }
                     // give the generator
-                    Common.addInventoryItem(this.player, generator.createItem(1));
+                    NextGens.getInstance().getRefundManager().giveGeneratorItems(this.player, generator, 1);
                     // send message
                     NextGens.DEFAULT_CONFIG.sendMessage(this.player, "messages.gen-purchase", new Placeholder()
                             .add("{gen}", generator.displayName())

@@ -52,9 +52,9 @@ public class ViewInventory extends FastInv {
         FileConfiguration config = NextGens.VIEW_GUI_CONFIG.getConfig();
         List<ActiveGenerator> generators = this.generatorManager.getActiveGenerator(user.getUniqueId());
         List<Integer> slots = config.getIntegerList("slots");
-        if (this.pagination == null) {
-            this.pagination = new Pagination<>(generators, slots);
-        }
+        int currentPage = this.pagination == null ? 1 : this.pagination.currentPage;
+        this.pagination = new Pagination<>(generators, slots);
+        this.pagination.currentPage = Math.min(currentPage, this.pagination.totalPage);
 
         // clear the inventory first
         this.clearItems();
@@ -80,15 +80,19 @@ public class ViewInventory extends FastInv {
                     .add("{z}", Common.digits(active.getLocation().getBlockZ()))
                     .add("{world}", active.getLocation().getWorld().getName()));
 
-            boolean finalIsAdditionalLore = isAdditionalLore;
             this.setItem(slot, builder.build(), event -> {
-                if (!finalIsAdditionalLore) return;
-                // unregister the generator
-                this.generatorManager.unregisterGenerator(active.getLocation());
-                // set the block to air
-                active.getLocation().getBlock().setType(Material.AIR);
+                String permission = this.player.getUniqueId().equals(active.getOwner())
+                        ? config.getString("pickup-own") : config.getString("pickup-others");
+                if (permission == null || !this.player.hasPermission(permission)) return;
+                synchronized (this.generatorManager) {
+                    if (!this.generatorManager.unregisterGenerator(active)) {
+                        this.setAllItems();
+                        return;
+                    }
+                    active.getLocation().getBlock().setType(Material.AIR);
+                }
                 // give the item to the player
-                Common.addInventoryItem(this.player, active.getGenerator().createItem(1));
+                NextGens.getInstance().getRefundManager().giveGeneratorItems(this.player, active.getGenerator(), 1);
                 // add visual action
                 Player owner = Bukkit.getPlayer(active.getOwner());
                 if (owner != null) {
@@ -101,19 +105,13 @@ public class ViewInventory extends FastInv {
                 this.player.playSound(this.player.getLocation(), XSound.UI_BUTTON_CLICK.get(), 1.0f, 1.0f);
 
                 // update the gui
-                int currentPage = this.pagination.currentPage;
-                this.pagination = new Pagination<>(this.generatorManager.getActiveGenerator(this.user.getUniqueId()), slots);
-                if (this.pagination.getItems(currentPage) != null) {
-                    this.pagination.currentPage = currentPage;
-                }
-
                 this.setAllItems();
             });
         }
 
         if (config.isConfigurationSection("items")) {
             for (String key : config.getConfigurationSection("items").getKeys(false)) {
-                ItemStack stack = ItemBuilder.fromConfig(config, "items." + key).build();
+                ItemStack stack = ItemBuilder.fromConfig(this.player, config, "items." + key).build();
                 String type = config.getString("items." + key + ".type", "dummy");
                 List<String> commands = config.getStringList("items." + key + ".commands");
                 List<Integer> itemSlots = config.getIntegerList("items." + key + ".slots");
@@ -132,7 +130,7 @@ public class ViewInventory extends FastInv {
                     }
 
                     if (type.equalsIgnoreCase("previous_page")) {
-                        if (this.pagination == null || !this.pagination.hasNextPage()) return;
+                        if (this.pagination == null || !this.pagination.hasPreviousPage()) return;
                         this.pagination.currentPage--;
                         this.setAllItems();
                     }

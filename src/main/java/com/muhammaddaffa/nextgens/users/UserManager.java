@@ -16,6 +16,15 @@ import java.util.stream.Collectors;
 public class UserManager {
 
     private final Map<UUID, User> userMap = new ConcurrentHashMap<>();
+    private volatile boolean loading;
+
+    public void beginLoading() {
+        this.loading = true;
+    }
+
+    public void finishLoading() {
+        this.loading = false;
+    }
 
     @Nullable
     public User getUser(String name) {
@@ -32,6 +41,7 @@ public class UserManager {
 
     @NotNull
     public User getUser(UUID uuid) {
+        if (this.loading) throw new IllegalStateException("User data is still loading");
         return userMap.computeIfAbsent(uuid, User::new);
     }
 
@@ -71,14 +81,18 @@ public class UserManager {
         if (config.getBoolean("default-max-generator.enabled")) {
             max += config.getInt("default-max-generator.amount");
         }
+        String prefix = "nextgens.max.";
         for (PermissionAttachmentInfo pai : player.getEffectivePermissions()) {
             String permission = pai.getPermission();
-            if (!permission.startsWith("nextgens.max.")) {
+            if (!pai.getValue() || !permission.startsWith(prefix)) {
                 continue;
             }
-            int current = Integer.parseInt(permission.split("\\.")[2]);
-            if (current > max) {
-                max = current;
+            try {
+                int current = Integer.parseInt(permission.substring(prefix.length()));
+                if (current > max) {
+                    max = current;
+                }
+            } catch (NumberFormatException ignored) {
             }
         }
 

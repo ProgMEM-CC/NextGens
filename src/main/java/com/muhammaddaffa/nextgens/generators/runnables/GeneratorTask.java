@@ -40,7 +40,7 @@ public class GeneratorTask extends GensRunnable {
         // set back the runnable
         runnable = new GeneratorTask(generatorManager, eventManager, userManager);
         // run the task
-        runnable.runTaskTimerAsynchronously(NextGens.getInstance(), 5L, 20L);
+        runnable.runTaskTimerAsynchronously(NextGens.getInstance(), 20L, 5L);
     }
 
     public static void flush() {
@@ -182,9 +182,8 @@ public class GeneratorTask extends GensRunnable {
             } else {
                 dropAmount = 1;
             }
-            // add timer (the task runs once per second, so 1.0 keeps the
-            // generator intervals in sync with the 'interval' config value)
-            active.addTimer(1.0);
+            // add timer (the task runs every five ticks)
+            active.addTimer(0.25);
             //Logger.info("Generator " + generator.id() + " timer: " + active.getTimer() + " / " + interval);
             // check if the generator should drop
             if (active.getTimer() >= interval) {
@@ -194,6 +193,11 @@ public class GeneratorTask extends GensRunnable {
                 ExecutorManager.getProvider().region(active.getLocation().getWorld(),
                         active.getLocation().getBlockX() >> 4,
                         active.getLocation().getBlockZ() >> 4, () -> {
+                    if (this.generatorManager.getActiveGenerator(active.getLocation()) != active ||
+                            active.getGenerator() != generator || !active.isChunkLoaded() ||
+                            (Settings.CORRUPTION_ENABLED && active.isCorrupted())) {
+                        return;
+                    }
                 // execute drop mechanics
                 //Logger.info("Generator " + generator.id() + " is dropping item!");
                 Block block = active.getLocation().getBlock();

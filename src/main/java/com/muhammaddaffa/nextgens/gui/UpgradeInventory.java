@@ -3,7 +3,6 @@ package com.muhammaddaffa.nextgens.gui;
 import com.muhammaddaffa.mdlib.fastinv.FastInv;
 import com.muhammaddaffa.mdlib.hooks.VaultEconomy;
 import com.muhammaddaffa.mdlib.utils.*;
-import com.muhammaddaffa.mdlib.xseries.particles.XParticle;
 import com.muhammaddaffa.nextgens.NextGens;
 import com.muhammaddaffa.nextgens.generators.ActiveGenerator;
 import com.muhammaddaffa.nextgens.generators.Generator;
@@ -12,10 +11,7 @@ import com.muhammaddaffa.nextgens.generators.managers.GeneratorManager;
 import com.muhammaddaffa.nextgens.users.UserManager;
 import com.muhammaddaffa.nextgens.utils.*;
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
@@ -92,14 +88,6 @@ public class UpgradeInventory extends FastInv {
 
         // set the item
         this.setItems(slots, builder.build(), event -> {
-            // Need to do a check if active generator still exists
-            // to prevent dupe, was reported by one of our customers
-            ActiveGenerator refresh = generatorManager.getActiveGenerator(active.getLocation());
-            if (refresh == null) {
-                player.closeInventory();
-                return;
-            }
-
             GeneratorUpdateHelper.upgradeGenerator(player, active, generator, nextGenerator);
             this.player.closeInventory();
         });
@@ -146,7 +134,7 @@ public class UpgradeInventory extends FastInv {
     }
 
     private void setNoUpgradeButton(List<Integer> slots) {
-        ItemBuilder builder = ItemBuilder.fromConfig(NextGens.UPGRADE_GUI_CONFIG.getConfig(), "no-upgrade-button");
+        ItemBuilder builder = ItemBuilder.fromConfig(this.player, NextGens.UPGRADE_GUI_CONFIG.getConfig(), "no-upgrade-button");
         if (builder == null) {
             return;
         }
@@ -158,7 +146,7 @@ public class UpgradeInventory extends FastInv {
         // get the slots
         List<Integer> slots = config.getIntegerList("confirm-slots");
         // create the item
-        ItemBuilder builder = ItemBuilder.fromConfig(config, "confirm-button");
+        ItemBuilder builder = ItemBuilder.fromConfig(this.player, config, "confirm-button");
         if (builder == null) {
             return;
         }
@@ -174,7 +162,7 @@ public class UpgradeInventory extends FastInv {
         // get the slots
         List<Integer> slots = config.getIntegerList("cancel-slots");
         // create the item
-        ItemBuilder builder = ItemBuilder.fromConfig(config, "cancel-button");
+        ItemBuilder builder = ItemBuilder.fromConfig(this.player, config, "cancel-button");
         if (builder == null) {
             return;
         }
