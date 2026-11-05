@@ -40,7 +40,7 @@ database:
 #       and player need to fix the broken generator with money by
 #       shift + right-clicking the generator
 corruption:
-  enabled: true
+  enabled: false
   # How often should corruption happen (in minutes)
   interval: 180
   # Should we corrupt the generator if the player are online?
@@ -173,7 +173,7 @@ interaction:
 island-pickup: true
 # Should we open up the upgrade gui if player tries to upgrade their gen?
 # Take a look at "gui/upgrade_gui.yml" to configure the upgrade gui
-upgrade-gui: true
+upgrade-gui: false
 # Should we close shop gui after purchasing gen?
 close-on-purchase: false
 # Should we close shop gui if player doesn't have money to buy the gen?
@@ -316,14 +316,14 @@ generator-place-options:
   # Should we display particles upon placing generator?
   particles: true
   # Chat messages
-  messages:
+  action-bar:
     enabled: true
     message:
-      - '&6[NextGens] &aYou have placed {gen} &7({current}/{max})'
+      - '({current}/{max})'
   # Sound
   sound:
     enabled: true
-    name: ENTITY_PLAYER_LEVELUP
+    name: ENTITY_ARRROW_HIT_PLAYER
     volume: 1.0
     pitch: 2.0
 
@@ -332,10 +332,10 @@ generator-break-options:
   # Should we display particles upon breaking generator?
   particles: true
   # Chat messages
-  messages:
+  action-bar:
     enabled: true
     message:
-      - '&6[NextGens] &cYou have picked up {gen} &7({current}/{max})'
+      - '({current}/{max})'
   # Sound
   sound:
     enabled: true
@@ -348,10 +348,10 @@ generator-upgrade-options:
   # Should we display particles upon upgrading generator?
   particles: true
   # Chat messages
-  messages:
+  action-bar:
     enabled: true
     message:
-      - '&6[NextGens] &aYou have upgrade your generator from {previous} to {current}'
+      - '&aUpgraded {previous} -> {current}'
   # Sound
   sound:
     enabled: true
